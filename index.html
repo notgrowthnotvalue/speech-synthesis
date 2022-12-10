@@ -12,7 +12,7 @@
 
     <div class="voiceinator">
 
-        <h1>The Son-In-Law Detector 5000</h1>
+        <h1>The Voiceinator 5000</h1>
 
         <select name="voice" id="voices">
             <option value="">Select A Voice</option>
@@ -22,8 +22,8 @@
         <input name="rate" type="range" min="0" max="3" value="1" step="0.1">
 
         <label for="pitch">Pitch:</label>
-        <input name="pitch" type="range" min="0" max="2" step="0.1">
 
+        <input name="pitch" type="range" min="0" max="2" step="0.1">
         <textarea name="text">Hello! I love JavaScript 👍</textarea>
         <button id="stop">Stop!</button>
         <button id="speak">Speak</button>
@@ -41,21 +41,35 @@
 
         function populateVoices() {
             voices = this.getVoices();
-            console.log(voices)
-            // voicesDropdown.innerHTML = voices
-            //     .map(voice => `<option value="${voice.name}">${voice.name} (${voice.lang})</
-            //     option>`)
-            // .join('');
+            const voiceOptions = voices
+                .filter(voice => voice.lang.includes('en'))
+                .map(voice => `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`)
+                .join('');
+            voicesDropdown.innerHTML = voiceOptions;
         }
 
         function setVoice() {
-            console.log(this.value);
+            msg.voice = voices.find(voice => voice.name === this.value);
+            toggle();
         }
 
+        function toggle(startOver = true) {
+            speechSynthesis.cancel();
+            if (startOver) {
+                speechSynthesis.speak(msg);
+            }
+        }
 
-        speechSynthesis.addEventListener('voiceschanged', populateVoices);
-        //voicesDropdown.addEventListener('change', setVoice);
+        function setOption() {
+            msg[this.name] = this.value;
+            toggle();
+        }
 
+        speechSynthesis.addEventListener('voiceschanged', populateVoices)
+        voicesDropdown.addEventListener('change', setVoice);
+        options.forEach(option => option.addEventListener('change', setOption));
+        speakButton.addEventListener('click', toggle);
+        stopButton.addEventListener('click', () => toggle(false));
 
     </script>
 
